@@ -12,6 +12,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV OPENFLOWS_HOME=/opt/openflows
 ENV OPENFLOWS_E2B_HOME=/opt/e2b-config
 ENV CARGO_TERM_COLOR=always
+ENV PATH=/usr/local/cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
