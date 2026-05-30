@@ -39,11 +39,16 @@ e2b template create openflows-codex-openai \
 
 ## Runtime
 
-After creating a sandbox from this template:
+Use the TypeScript operator scripts from the configuration repo root. They
+create or connect to a sandbox, upload `env/openflows.runtime.env` to
+`/opt/openflows/.env`, and start `agentflow` in the background:
 
 ```bash
-cd /opt/openflows
-cp /opt/e2b-config/env/openflows.runtime.example.env .env
-vi .env
-./target/release/agentflow
+npm run openflows:launch
+npm run openflows:status -- <sandbox-id>
+npm run openflows:start -- <sandbox-id>
 ```
+
+Manual shell startup is still possible for debugging, but it should not be the
+normal operating path because runtime secrets should be injected after sandbox
+creation, not baked into the template.
