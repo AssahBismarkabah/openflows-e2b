@@ -64,6 +64,11 @@ rsync -a --delete \
 
 rsync -a --delete \
   --exclude '.build/' \
+  --exclude '.git/' \
+  --exclude '.codex' \
+  --exclude '.idea/' \
+  --exclude '.vscode/' \
+  --exclude 'node_modules/' \
   --exclude '.env' \
   --exclude '.env.local' \
   --exclude '.env.*' \
