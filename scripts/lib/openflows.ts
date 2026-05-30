@@ -9,6 +9,13 @@ const runtimeDir = `${openflowsHome}/runtime`;
 const runtimeEnvPath = `${openflowsHome}/.env`;
 const logPath = `${logsDir}/agentflow.log`;
 const pidPath = `${runtimeDir}/agentflow.pid`;
+const agentGithubTokenKeys = [
+  'AGENT_NEXUS_GITHUB_TOKEN',
+  'AGENT_FORGE_GITHUB_TOKEN',
+  'AGENT_SENTINEL_GITHUB_TOKEN',
+  'AGENT_VESSEL_GITHUB_TOKEN',
+  'AGENT_LORE_GITHUB_TOKEN',
+];
 
 export function readRuntimeEnv(): string {
   const filePath = path.join(rootDir, 'env/openflows.runtime.env');
@@ -18,7 +25,7 @@ export function readRuntimeEnv(): string {
 
   const content = fs.readFileSync(filePath, 'utf8');
   validateRuntimeEnv(content);
-  return content.endsWith('\n') ? content : `${content}\n`;
+  return withAgentGithubTokenFallbacks(content);
 }
 
 export async function provisionOpenFlowsRuntime(sandbox: Sandbox, runtimeEnv: string): Promise<void> {
@@ -52,13 +59,17 @@ export async function startOpenFlows(sandbox: Sandbox): Promise<string> {
     `echo "agentflow started pid=$(cat ${pidPath})"`,
   ].join('\n');
 
-  const result = await sandbox.commands.run(command, {
-    cwd: openflowsHome,
-    user: 'user',
-    timeoutMs: 20_000,
-  });
+  try {
+    const result = await sandbox.commands.run(command, {
+      cwd: openflowsHome,
+      user: 'user',
+      timeoutMs: 20_000,
+    });
 
-  return [result.stdout, result.stderr].filter(Boolean).join('\n').trim();
+    return sanitizeOutput([result.stdout, result.stderr].filter(Boolean).join('\n').trim());
+  } catch (error) {
+    fail(formatCommandError('Failed to start OpenFlows', error));
+  }
 }
 
 export async function getOpenFlowsStatus(sandbox: Sandbox, tailLines = 80): Promise<string> {
@@ -73,13 +84,17 @@ export async function getOpenFlowsStatus(sandbox: Sandbox, tailLines = 80): Prom
     `if [ -f ${logPath} ]; then tail -n ${tailLines} ${logPath}; else echo "no log file yet"; fi`,
   ].join('\n');
 
-  const result = await sandbox.commands.run(command, {
-    cwd: openflowsHome,
-    user: 'user',
-    timeoutMs: 20_000,
-  });
+  try {
+    const result = await sandbox.commands.run(command, {
+      cwd: openflowsHome,
+      user: 'user',
+      timeoutMs: 20_000,
+    });
 
-  return [result.stdout, result.stderr].filter(Boolean).join('\n').trim();
+    return sanitizeOutput([result.stdout, result.stderr].filter(Boolean).join('\n').trim());
+  } catch (error) {
+    fail(formatCommandError('Failed to read OpenFlows status', error));
+  }
 }
 
 function validateRuntimeEnv(content: string): void {
@@ -99,6 +114,24 @@ function validateRuntimeEnv(content: string): void {
   if (errors.length > 0) {
     fail(`Runtime env is not ready:\n${errors.map((error) => `- ${error}`).join('\n')}`);
   }
+}
+
+function withAgentGithubTokenFallbacks(content: string): string {
+  const env = parseEnv(content);
+  const fallbackToken = env.GITHUB_PERSONAL_ACCESS_TOKEN;
+  const additions = agentGithubTokenKeys
+    .filter((key) => !env[key])
+    .map((key) => `${key}=${shellQuote(fallbackToken)}`);
+
+  const normalized = content.endsWith('\n') ? content : `${content}\n`;
+  if (additions.length === 0) return normalized;
+
+  return [
+    normalized,
+    '# Added by OpenFlows E2B launcher when per-agent GitHub tokens are not set.',
+    ...additions,
+    '',
+  ].join('\n');
 }
 
 function requireValue(env: Record<string, string>, key: string, errors: string[]): void {
@@ -124,4 +157,27 @@ function stripOptionalQuotes(value: string): string {
     return value.slice(1, -1);
   }
   return value;
+}
+
+function shellQuote(value: string): string {
+  return `'${value.replace(/'/g, `'\\''`)}'`;
+}
+
+function formatCommandError(prefix: string, error: unknown): string {
+  const result = (error as { result?: { stdout?: string; stderr?: string; error?: string } }).result;
+  if (!result) {
+    return `${prefix}: ${error instanceof Error ? error.message : String(error)}`;
+  }
+
+  const output = sanitizeOutput([result.error, result.stdout, result.stderr].filter(Boolean).join('\n').trim());
+  return `${prefix}:\n${output}`;
+}
+
+function sanitizeOutput(output: string): string {
+  return output
+    .replace(/Bearer\s+[A-Za-z0-9._~+/=-]+/g, 'Bearer <redacted>')
+    .replace(/github_pat_[A-Za-z0-9_]+/g, '<github-token-redacted>')
+    .replace(/gh[opusr]_[A-Za-z0-9_]+/g, '<github-token-redacted>')
+    .replace(/sk-[A-Za-z0-9_-]+/g, '<openai-key-redacted>')
+    .replace(/e2b_[A-Za-z0-9_-]+/g, '<e2b-key-redacted>');
 }

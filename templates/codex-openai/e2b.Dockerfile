@@ -35,6 +35,10 @@ RUN if [ ! -x /usr/local/cargo/bin/cargo ]; then \
     && cargo --version \
     && rustc --version
 
+RUN . /usr/local/cargo/env \
+    && cargo install mcp-stdio-proxy --root /usr/local --force \
+    && mcp-proxy convert --help >/dev/null
+
 RUN npm install -g @openai/codex
 
 WORKDIR /opt
