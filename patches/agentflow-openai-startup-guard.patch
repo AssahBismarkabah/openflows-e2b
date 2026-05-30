@@ -1,0 +1,22 @@
+--- binary/src/bin/agentflow.rs
++++ binary/src/bin/agentflow.rs
+@@ -31,13 +31,18 @@
+     let default_cli = std::env::var("DEFAULT_CLI").unwrap_or_else(|_| "claude".to_string());
+     let has_fireworks = std::env::var("FIREWORKS_API_KEY").is_ok();
++    let has_openai = std::env::var("OPENAI_API_KEY").is_ok();
+     let has_proxy = std::env::var("PROXY_URL").is_ok();
+     let has_anthropic = std::env::var("ANTHROPIC_API_KEY").is_ok();
+ 
+     info!("═══ AgentFlow Configuration ═══");
+     info!("  CLI Backend: {}", default_cli);
+-    if default_cli == "codex" && has_fireworks {
+-        info!("  LLM Mode: Codex + Fireworks (direct — no proxy needed)");
++    if default_cli == "codex" && (has_fireworks || has_openai) {
++        if has_fireworks {
++            info!("  LLM Mode: Codex + Fireworks (direct — no proxy needed)");
++        } else {
++            info!("  LLM Mode: Codex + OpenAI (direct - no proxy needed)");
++        }
+     } else if default_cli == "claude" && has_anthropic && !has_proxy {
+         info!("  LLM Mode: Claude + Direct Anthropic Key");
+     } else if has_proxy {

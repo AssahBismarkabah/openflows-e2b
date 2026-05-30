@@ -1,0 +1,24 @@
+.env
+.env.local
+.env.*
+.env.*.local
+
+# Filled runtime env files copied from examples
+env/*.env
+!env/*.example.env
+
+# Generated build context and local output
+.build/
+logs/
+*.log
+
+# Editor and local tooling
+.idea/
+.vscode/
+node_modules/
+
+# OS/editor noise
+.DS_Store
+*.tmp
+*.swp
+*.swo

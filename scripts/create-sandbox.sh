@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+if [ -f "${ROOT_DIR}/.env.local" ]; then
+  set -a
+  # shellcheck disable=SC1091
+  source "${ROOT_DIR}/.env.local"
+  set +a
+fi
+
+TEMPLATE_NAME="${E2B_TEMPLATE_NAME:-openflows-codex-openai}"
+
+if ! command -v e2b >/dev/null 2>&1; then
+  echo "e2b CLI not found. Install it with: npm install -g @e2b/cli" >&2
+  exit 1
+fi
+
+if [ -z "${E2B_API_KEY:-}" ]; then
+  echo "E2B_API_KEY is not set. Export it or create ${ROOT_DIR}/.env.local." >&2
+  exit 1
+fi
+
+echo "Creating interactive E2B sandbox from '${TEMPLATE_NAME}'"
+e2b sandbox create "${TEMPLATE_NAME}"
+
