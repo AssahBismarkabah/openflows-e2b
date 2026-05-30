@@ -16,14 +16,16 @@ CPU_COUNT="${E2B_CPU_COUNT:-4}"
 MEMORY_MB="${E2B_MEMORY_MB:-8192}"
 CONTEXT_DIR="${ROOT_DIR}/.build/context"
 DOCKERFILE="${CONTEXT_DIR}/e2b.Dockerfile"
+DOCKERFILE_NAME="e2b.Dockerfile"
 
 if ! command -v e2b >/dev/null 2>&1; then
   echo "e2b CLI not found. Install it with: npm install -g @e2b/cli" >&2
   exit 1
 fi
 
-if [ -z "${E2B_ACCESS_TOKEN:-}" ]; then
-  echo "E2B_ACCESS_TOKEN is not set. Run 'e2b auth login' or add it to ${ROOT_DIR}/.env.local." >&2
+AUTH_INFO="$(e2b auth info 2>/dev/null || true)"
+if [ -z "${E2B_ACCESS_TOKEN:-}" ] && ! printf '%s\n' "${AUTH_INFO}" | grep -q "You are logged in"; then
+  echo "E2B CLI is not authenticated. Run 'e2b auth login' or add E2B_ACCESS_TOKEN to ${ROOT_DIR}/.env.local." >&2
   exit 1
 fi
 
@@ -38,6 +40,6 @@ echo "  memory:     ${MEMORY_MB} MB"
 
 e2b template create "${TEMPLATE_NAME}" \
   --path "${CONTEXT_DIR}" \
-  --dockerfile "${DOCKERFILE}" \
+  --dockerfile "${DOCKERFILE_NAME}" \
   --cpu-count "${CPU_COUNT}" \
   --memory-mb "${MEMORY_MB}"

@@ -32,7 +32,7 @@ Or directly:
 ./scripts/prepare-context.sh
 e2b template create openflows-codex-openai \
   --path .build/context \
-  --dockerfile .build/context/e2b.Dockerfile \
+  --dockerfile e2b.Dockerfile \
   --cpu-count 4 \
   --memory-mb 8192
 ```

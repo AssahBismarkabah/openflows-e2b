@@ -18,8 +18,9 @@ if ! command -v e2b >/dev/null 2>&1; then
   exit 1
 fi
 
-if [ -z "${E2B_ACCESS_TOKEN:-}" ]; then
-  echo "E2B_ACCESS_TOKEN is not set. Run 'e2b auth login' or add it to ${ROOT_DIR}/.env.local." >&2
+AUTH_INFO="$(e2b auth info 2>/dev/null || true)"
+if [ -z "${E2B_ACCESS_TOKEN:-}" ] && ! printf '%s\n' "${AUTH_INFO}" | grep -q "You are logged in"; then
+  echo "E2B CLI is not authenticated. Run 'e2b auth login' or add E2B_ACCESS_TOKEN to ${ROOT_DIR}/.env.local." >&2
   exit 1
 fi
 
