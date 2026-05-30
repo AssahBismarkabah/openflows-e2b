@@ -51,7 +51,9 @@ RUN cp /opt/e2b-config/config/registry.codex-openai.json /opt/openflows/orchestr
 RUN . /usr/local/cargo/env \
     && cargo build --release -p openflows --bin agentflow --bin agentflow-setup --bin agentflow-dashboard --bin agentflow-doctor
 
-RUN chmod +x /opt/e2b-config/scripts/*.sh
+RUN chmod +x /opt/e2b-config/scripts/*.sh \
+    && mkdir -p /opt/openflows/logs /opt/openflows/runtime \
+    && chown -R user:user /opt/openflows /opt/e2b-config
 
 ENV DEFAULT_CLI=codex
 ENV CODEX_PROVIDER=openai

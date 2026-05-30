@@ -5,6 +5,9 @@
   "scripts": {
     "sandbox:create-long": "tsx scripts/create-long-lived-sandbox.ts",
     "sandbox:extend": "tsx scripts/extend-sandbox-timeout.ts",
+    "openflows:launch": "tsx scripts/launch-openflows.ts",
+    "openflows:start": "tsx scripts/start-openflows.ts",
+    "openflows:status": "tsx scripts/status-openflows.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
