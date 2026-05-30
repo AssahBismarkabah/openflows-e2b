@@ -66,7 +66,9 @@ rsync -a --delete \
   --exclude '.build/' \
   --exclude '.env' \
   --exclude '.env.local' \
-  --exclude '.env.*.local' \
+  --exclude '.env.*' \
+  --include 'env/*.example.env' \
+  --exclude 'env/*.env' \
   --exclude '*.log' \
   "${ROOT_DIR}/" "${CONTEXT_DIR}/e2b-config/"
 
