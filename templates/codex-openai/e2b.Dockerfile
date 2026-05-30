@@ -12,7 +12,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV OPENFLOWS_HOME=/opt/openflows
 ENV OPENFLOWS_E2B_HOME=/opt/e2b-config
 ENV CARGO_TERM_COLOR=always
-ENV PATH=/usr/local/cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV PATH=/root/.cargo/bin:/usr/local/cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
@@ -26,6 +26,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libssl-dev \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
+
+RUN if ! command -v cargo >/dev/null 2>&1; then \
+      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+        | sh -s -- -y --default-toolchain 1.88.0 --profile minimal; \
+    fi \
+    && cargo --version \
+    && rustc --version
 
 RUN npm install -g @openai/codex
 
