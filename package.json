@@ -3,10 +3,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "sandbox:create-long": "node scripts/create-long-lived-sandbox.mjs",
-    "sandbox:extend": "node scripts/extend-sandbox-timeout.mjs"
+    "sandbox:create-long": "tsx scripts/create-long-lived-sandbox.ts",
+    "sandbox:extend": "tsx scripts/extend-sandbox-timeout.ts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "e2b": "^2.27.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.3"
   }
 }

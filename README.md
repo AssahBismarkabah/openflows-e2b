@@ -80,6 +80,24 @@ Use E2B SDK or CLI to create the template, inject runtime env vars, then run:
 cd /opt/openflows && ./target/release/agentflow
 ```
 
+For a longer-lived sandbox, use the SDK script instead of the CLI default:
+
+```bash
+npm install
+npm run sandbox:create-long
+```
+
+This uses `E2B_SANDBOX_TIMEOUT_MINUTES`, `E2B_SANDBOX_ON_TIMEOUT`, and
+`E2B_SANDBOX_AUTO_RESUME` from `.env.local`. The recommended mode is
+`onTimeout=pause` with `autoResume=true`, so the sandbox state is preserved
+instead of being killed when idle.
+
+To extend an already-running sandbox:
+
+```bash
+npm run sandbox:extend -- <sandbox-id> 60
+```
+
 ### 3. Plain Docker Compatibility
 
 The same `e2b.Dockerfile` can be validated locally:
