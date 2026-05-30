@@ -27,10 +27,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-RUN if ! command -v cargo >/dev/null 2>&1; then \
+RUN if [ ! -x /usr/local/cargo/bin/cargo ]; then \
       curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
         | sh -s -- -y --default-toolchain 1.88.0 --profile minimal; \
     fi \
+    && . /usr/local/cargo/env \
     && cargo --version \
     && rustc --version
 
@@ -47,7 +48,8 @@ RUN test -f binary/src/bin/agentflow.rs \
     && patch -p0 < /opt/e2b-config/patches/agentflow-openai-startup-guard.patch
 RUN cp /opt/e2b-config/config/registry.codex-openai.json /opt/openflows/orchestration/agent/registry.json
 
-RUN cargo build --release -p openflows --bin agentflow --bin agentflow-setup --bin agentflow-dashboard --bin agentflow-doctor
+RUN . /usr/local/cargo/env \
+    && cargo build --release -p openflows --bin agentflow --bin agentflow-setup --bin agentflow-dashboard --bin agentflow-doctor
 
 RUN chmod +x /opt/e2b-config/scripts/*.sh
 
