@@ -18,11 +18,10 @@ if ! command -v e2b >/dev/null 2>&1; then
   exit 1
 fi
 
-if [ -z "${E2B_API_KEY:-}" ]; then
-  echo "E2B_API_KEY is not set. Export it or create ${ROOT_DIR}/.env.local." >&2
+if [ -z "${E2B_ACCESS_TOKEN:-}" ]; then
+  echo "E2B_ACCESS_TOKEN is not set. Run 'e2b auth login' or add it to ${ROOT_DIR}/.env.local." >&2
   exit 1
 fi
 
 echo "Creating interactive E2B sandbox from '${TEMPLATE_NAME}'"
 e2b sandbox create "${TEMPLATE_NAME}"
-

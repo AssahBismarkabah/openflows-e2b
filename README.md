@@ -28,8 +28,11 @@ Install and authenticate the E2B CLI first:
 
 ```bash
 npm install -g @e2b/cli
-export E2B_API_KEY=e2b_...
+export E2B_ACCESS_TOKEN=e2b_...
 ```
+
+For SDK/API-driven automation, also set `E2B_API_KEY`. The E2B CLI uses
+`E2B_ACCESS_TOKEN` or `e2b auth login`.
 
 Build the sandbox template:
 
